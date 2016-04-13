@@ -190,7 +190,7 @@ public class HuffmanCode {
      * @param ch element which is searching
      * @param path code of node which was found
      */
-    public void traverse(ArrayList<HuffData> code, BinaryTree<HuffData> node,
+    private void traverse(ArrayList<HuffData> code, BinaryTree<HuffData> node,
                           StringBuffer prefix, char ch,StringBuffer path) {
         //return if this node is empty.
         if (node == null)

@@ -10,21 +10,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 public class Main {
-    /*
-    public String encode(String message, BinaryTree HuffmanCode){
-
-
-    }
-*/
-// Nested Classes
     /** A datum in the Huffman tree. */
     public static class HuffData implements Serializable {
         // Data Fields
@@ -43,7 +32,7 @@ public class Main {
     }
     // Data Fields
     /** A reference to the completed Huffman tree. */
-    public BinaryTree<HuffData> huffTree;
+    protected BinaryTree<HuffData> huffTree;
 
     /** A Comparator for Huffman trees; nested class. */
     private static class CompareHuffmanCodes
@@ -57,7 +46,6 @@ public class Main {
          * 0 if left equals right,
          * and +1 if left greater than right
          */
-        //   @Override
         public int compare(BinaryTree<HuffData> treeLeft,
                            BinaryTree<HuffData> treeRight) {
             double wLeft = treeLeft.getData().weight;
@@ -153,12 +141,10 @@ public class Main {
         }
         return result.toString();
     }
-
-
         /**
          * Print codes and their wiegths as string
          */
-    public String toString(){
+        public String toString(){
 
         String encodedCodes = "";
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -175,138 +161,56 @@ public class Main {
 
         return encodedCodes;
     }
-/*
-    abstract class HuffmanTree implements Comparable<HuffmanTree> {
-        public final int frequency; // the frequency of this tree
-        public HuffmanTree(int freq) { frequency = freq; }
 
-        // compares on the frequency
-        public int compareTo(HuffmanTree tree) {
-            return frequency - tree.frequency;
-        }
-    }
-    class HuffmanLeaf extends HuffmanTree {
-        public final char value; // the character this leaf represents
+    /**
+     * Method to encode string message into Huffman encodes.
+     * @param message The input message as a String
+     * which is composed on the specified alphabet in the book
+     * @param huffmanTree It’s created huffman code for the alphabet
+     * @return The encoded message as a String zero and ones.
+     */
+    public String encode(String message, BinaryTree huffmanTree){
 
-        public HuffmanLeaf(int freq, char val) {
-            super(freq);
-            value = val;
-        }
-    }
-    class HuffmanNode extends HuffmanTree {
-        public final HuffmanTree left, right; // subtrees
+        StringBuffer resultOfEncoding = new StringBuffer();
+        StringBuffer strbuff = new StringBuffer();
+        ArrayList<HuffData> test1 = new ArrayList<HuffData>();
+        for(int i=0; i<message.length(); ++i)
+            traverse(test1,huffmanTree,strbuff,message.charAt(i),resultOfEncoding);
 
-        public HuffmanNode(HuffmanTree l, HuffmanTree r) {
-            super(l.frequency + r.frequency);
-            left = l;
-            right = r;
-        }
+        return(resultOfEncoding.toString());
     }
 
-    public static void encodePrint(HuffmanTree tree, StringBuffer prefix) {
-        assert tree != null;
-        if (tree instanceof HuffmanLeaf) {
-            HuffmanLeaf leaf = (HuffmanLeaf)tree;
-
-            // print out character, frequency, and code for this leaf (which is just the prefix)
-            System.out.println(leaf.value + "\t" + leaf.frequency + "\t" + prefix);
-
-        } else if (tree instanceof HuffmanNode) {
-            HuffmanNode node = (HuffmanNode)tree;
-
-            // traverse left
-            prefix.append('0');
-            encodePrint(node.left, prefix);
-            prefix.deleteCharAt(prefix.length()-1);
-
-            // traverse right
-            prefix.append('1');
-            encodePrint(node.right, prefix);
-            prefix.deleteCharAt(prefix.length()-1);
-        }
-    }
-
-*/
-    /*
-static class HuffmanTree implements Comparable<HuffmanTree> {
-        public final int frequency; // the frequency of this tree
-        public HuffmanTree(int freq) { frequency = freq; }
-
-        // compares on the frequency
-        public int compareTo(HuffmanTree tree) {
-            return frequency - tree.frequency;
-        }
-    }
-    class HuffmanLeaf extends HuffmanTree {
-        public final char value; // the character this leaf represents
-
-        public HuffmanLeaf(int freq, char val) {
-            super(freq);
-            value = val;
-        }
-    }
-    class HuffmanNode extends HuffmanTree {
-            public final HuffmanTree left, right; // subtrees
-
-            public HuffmanNode(HuffmanTree l, HuffmanTree r) {
-                super(l.frequency + r.frequency);
-                left = l;
-                right = r;
-            }
-    }
-
-    public static void encode(HuffmanTree tree, StringBuffer prefix) {
-        assert tree != null;
-
-        if (tree instanceof HuffmanLeaf) {
-            System.out.println("totototo");
-            HuffmanLeaf leaf = (HuffmanLeaf)tree;
-
-            // print out character, frequency, and code for this leaf (which is just the prefix)
-            System.out.println(leaf.value + "\t" + leaf.frequency + "\t" + prefix);
-
-        } else if (tree instanceof HuffmanNode) {
-            System.out.println("totototo");
-            HuffmanNode node = (HuffmanNode)tree;
-
-            // traverse left
-            prefix.append('0');
-            encode(node.left, prefix);
-            prefix.deleteCharAt(prefix.length()-1);
-
-            // traverse right
-            prefix.append('1');
-            encode(node.right, prefix);
-            prefix.deleteCharAt(prefix.length()-1);
-        }
-
-        System.out.println("totototo");
-    }
-
-*/
-    public StringBuffer resultOfEncoding = new StringBuffer();
+    /**
+     * Recursive Method to search each leaf to find code of message
+     * @param code copy data to arraylist(not used unless if you remove or add to tree)
+     * @param node binary tree which we used
+     * @param prefix move to right or left from leaf
+     * @param ch element which is searching
+     * @param path code of node which was found
+     */
     public void traverse(ArrayList<HuffData> code, BinaryTree<HuffData> node,
-                          StringBuffer prefix, char ch) {
-
-        if(node==null) return; //return if this node is empty.
-        if (node!=null){
-            //traverse left
-            if (node.getData().getSymbol()!= null
+                          StringBuffer prefix, char ch,StringBuffer path) {
+        //return if this node is empty.
+        if (node == null)
+            return;
+        if (node != null){
+            // Save correct value path as an append into path
+            if (node.getData().getSymbol() != null
                     && node.getData().getSymbol().compareTo(ch) == 0)
-                resultOfEncoding.append(prefix);
-                //System.out.println(prefix);
+                path.append(prefix);
+            //traverse left
             prefix.append('0');
-            traverse(code, node.getLeftSubtree(), prefix,ch);
+            traverse(code, node.getLeftSubtree(), prefix,ch,path);
             prefix.deleteCharAt(prefix.length()-1);
         }
         if (node!=null){
             //traverse right
             prefix.append('1');
-            traverse(code, node.getRightSubtree(), prefix,ch);
+            traverse(code, node.getRightSubtree(), prefix,ch,path);
             prefix.deleteCharAt(prefix.length()-1);
         }
-        //if you want to include this node value into ur array then add it like this
-        code.add(node.getData());             //assuming your BinaryTreeNode has a method getData()
+        // Save all nodes in array list which excepts null pointer
+        code.add(node.getData());
     }
     /*</listing>*/
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
@@ -350,47 +254,14 @@ static class HuffmanTree implements Comparable<HuffmanTree> {
         // Print huffman codes of the symbols
        // String EncodedSymbolList = Htree.toString();
 
-        // Decode huffman codes to symbıls
+        // Decode huffman codes to symbols
         String code = "11000010011111110010100001";
-                //1000011";
         String decodedCode = Htree.decode(code);
         System.out.println("Code to Message : \n"+code+" : \t"+decodedCode);
 
-        String test = "this is an example for huffman encoding";
-/*
-        // we will assume that all our characters will have
-        // code less than 256, for simplicity
-        int[] charFreqs = new int[256];
-        // read each character and record the frequencies
-        for (char c : test.toCharArray())
-            charFreqs[c]++;
-
-        HuffmanTree tree = new huffTree();
-
-        encodePrint(tree,new StringBuffer());
-        */
-
-        //HuffmanTree tree = new HuffmanTree(1);
-
-        //encode(tree,new StringBuffer());
-        StringBuffer strbuff = new StringBuffer();
-        ArrayList<HuffData> test1 = new ArrayList<HuffData>();
-        Htree.traverse(test1,Htree.huffTree,strbuff,'q');
-        Htree.traverse(test1,Htree.huffTree,strbuff,'_');
-        Htree.traverse(test1,Htree.huffTree,strbuff,'_');
-        Htree.traverse(test1,Htree.huffTree,strbuff,'r');
-        Htree.traverse(test1,Htree.huffTree,strbuff,'g');
-
-        System.out.println(Htree.resultOfEncoding);
-
-        /*
-        for(int k=0; k<test1.size(); ++k) {
-            System.out.println(test1.get(k).getSymbol());
-            if(test1.get(k).getSymbol() != null && test1.get(k).getSymbol().compareTo('r')==0)
-                System.out.println(test1.get(k).weight);
-
-        }
-        */
+        System.out.println("Message to Code :");
+        System.out.print("q__rg : \t");
+        System.out.println(Htree.encode("q__rg",Htree.huffTree));
     }
 
 }

@@ -1,7 +1,8 @@
 /**
- * Created by Furkan on 12.04.2016.
+ * Created by Furkan on 10.04.2016.
  */
 
+import sun.plugin2.message.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -11,23 +12,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
-public class HuffmanCode implements Serializable    {
-/*
-    public String encode(String message, BinaryTree HuffmanCode){
-
-
-    }
-*/
-// Nested Classes
+public class HuffmanCode {
     /** A datum in the Huffman tree. */
     public static class HuffData implements Serializable {
         // Data Fields
@@ -60,7 +48,6 @@ public class HuffmanCode implements Serializable    {
          * 0 if left equals right,
          * and +1 if left greater than right
          */
-     //   @Override
         public int compare(BinaryTree<HuffData> treeLeft,
                            BinaryTree<HuffData> treeRight) {
             double wLeft = treeLeft.getData().weight;
@@ -156,11 +143,10 @@ public class HuffmanCode implements Serializable    {
         }
         return result.toString();
     }
-
-    /**
-     * Print codes and their wiegths as string
-     */
-    public String toString(){
+        /**
+         * Print codes and their wiegths as string
+         */
+        public String toString(){
 
         String encodedCodes = "";
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -177,8 +163,114 @@ public class HuffmanCode implements Serializable    {
 
         return encodedCodes;
     }
-    
-    /*</listing>*/
 
+    /**
+     * Method to encode string message into Huffman encodes.
+     * @param message The input message as a String
+     * which is composed on the specified alphabet in the book
+     * @param huffmanTree It’s created huffman code for the alphabet
+     * @return The encoded message as a String zero and ones.
+     */
+    public String encode(String message, BinaryTree huffmanTree){
+
+        StringBuffer resultOfEncoding = new StringBuffer();
+        StringBuffer strbuff = new StringBuffer();
+        ArrayList<HuffData> test1 = new ArrayList<HuffData>();
+        for(int i=0; i<message.length(); ++i)
+            traverse(test1,huffmanTree,strbuff,message.charAt(i),resultOfEncoding);
+
+        return(resultOfEncoding.toString());
+    }
+
+    /**
+     * Recursive Method to search each leaf to find code of message
+     * @param code copy data to arraylist(not used unless if you remove or add to tree)
+     * @param node binary tree which we used
+     * @param prefix move to right or left from leaf
+     * @param ch element which is searching
+     * @param path code of node which was found
+     */
+    public void traverse(ArrayList<HuffData> code, BinaryTree<HuffData> node,
+                          StringBuffer prefix, char ch,StringBuffer path) {
+        //return if this node is empty.
+        if (node == null)
+            return;
+        if (node != null){
+            // Save correct value path as an append into path
+            if (node.getData().getSymbol() != null
+                    && node.getData().getSymbol().compareTo(ch) == 0)
+                path.append(prefix);
+            //traverse left
+            prefix.append('0');
+            traverse(code, node.getLeftSubtree(), prefix,ch,path);
+            prefix.deleteCharAt(prefix.length()-1);
+        }
+        if (node!=null){
+            //traverse right
+            prefix.append('1');
+            traverse(code, node.getRightSubtree(), prefix,ch,path);
+            prefix.deleteCharAt(prefix.length()-1);
+        }
+        // Save all nodes in array list which excepts null pointer
+        code.add(node.getData());
+    }
+    /*</listing>*/
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
+
+        HuffmanCode Htree = new HuffmanCode();
+
+        // Create symbol array
+        HuffData[] symbols = {
+                new HuffData(186, '_'),
+                new HuffData(103, 'e'),
+                new HuffData(80, 't'),
+                new HuffData(64, 'a'),
+                new HuffData(63, 'o'),
+                new HuffData(57, 'i'),
+                new HuffData(57, 'n'),
+                new HuffData(51, 's'),
+                new HuffData(48, 'r'),
+                new HuffData(47, 'h'),
+                new HuffData(32, 'd'),
+                new HuffData(32, 'l'),
+                new HuffData(23, 'u'),
+                new HuffData(22, 'c'),
+                new HuffData(21, 'f'),
+                new HuffData(20, 'm'),
+                new HuffData(18, 'w'),
+                new HuffData(16, 'y'),
+                new HuffData(15, 'g'),
+                new HuffData(15, 'p'),
+                new HuffData(13, 'b'),
+                new HuffData(8, 'v'),
+                new HuffData(5, 'k'),
+                new HuffData(1, 'j'),
+                new HuffData(1, 'q'),
+                new HuffData(1, 'x'),
+                new HuffData(1, 'z')
+        };
+
+        // Build hufffman tree
+        Htree.buildTree(symbols);
+
+        // Print huffman codes of the symbols
+       // String EncodedSymbolList = Htree.toString();
+
+        // Decode huffman codes to symbols
+        String code = "11000010011111110010100001";
+        String decodedCode = Htree.decode(code);
+        System.out.println("Code to Message : \n"+code+" : \t"+decodedCode);
+
+        System.out.println("Message to Code :");
+        System.out.print("q__rg : \t");
+        String message = "q__rg";
+            if (message == null)
+                throw new NullPointerException("Message couldn't read!");
+        try {
+            System.out.println(Htree.encode(message,Htree.huffTree));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }
